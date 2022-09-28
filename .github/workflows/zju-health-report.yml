@@ -1,36 +1,33 @@
-name: 'ZJU-nCov-Hitcarder Action'
+name: 打卡
 
 on:
   workflow_dispatch:
+  push:
+    branches: 
+      - master
+  #watch:
+  #  types: started
   schedule:
-    - cron: '0 19 * * *'
+     - cron: '0 0,1,8 * * *'
 
 jobs:
-  main:
+  ClockIn:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-          - username: ZJU_USERNAME
-            password: ZJU_PASSWORD
-            dingtalk_token: DINGTALK_TOKEN
-            pushplus_token: PUSHPLUS_TOKEN
-            serverchan_key: SERVERCHAN_KEY
+    #if: github.event.repository.owner.id == github.event.sender.id
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: 'Set up Python'
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: 'Install requirements'
-        run: pip3 install -r ./requirements.txt
-      - name: Working
-        env:
-          USERNAME: ${{ secrets[matrix.username] }}
-          PASSWORD: ${{ secrets[matrix.password] }}
-          DINGTALK_TOKEN: ${{ secrets[matrix.dingtalk_token] }}
+        uses: actions/checkout@master
+      - name: Install python3
         run: |
-          python3 ./hitcarder.py
-        shell: bash
+          sudo -E apt-get -yqq update
+          sudo -E apt-get -yqq install python3
+          
+      # - name: DDDDOCR
+       # run: |
+        # python3 -m pip install ddddocr
+      - name: Clock In
+        env:
+          ACCOUNT: ${{ secrets.ACCOUNT }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          python3 clock-in.py ${ACCOUNT} ${PASSWORD}
